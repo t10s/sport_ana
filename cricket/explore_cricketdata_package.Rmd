@@ -44,4 +44,40 @@ ggplot(ex, aes(x=ball, y=over, colour=factor(runs_off_bat))) +
   
 ```
 
+```{r}
+# try pulling some player stats
+
+find_player_id("Cummins")
+# cummins id 489889
+
+pc <- fetch_player_data(489889,
+                  matchtype = "test",
+                  activity = "bowling")
+
+# vector of aussie grounds
+aus_grnds <- c("Sydney", "Melbourne", "Perth", "Brisbane", "Adelaide", "Canberra", "Hobart")
+
+pc_av <- pc |>
+  filter(Overs != "DNB") |>
+  group_by(Date, Ground, Opposition) |>
+  mutate(Overs = as.numeric(Overs),
+         Mdns = as.numeric(Mdns),
+         Wkts = as.numeric(Wkts),
+         Econ = as.numeric(Econ)) |>
+  summarise(total_overs = sum(Overs),
+            total_mdns = sum(Mdns),
+            total_runs = sum(Runs),
+            total_wkts = sum(Wkts),
+            avg_econ = mean(Econ)) |>
+  mutate(Home = ifelse(Ground %in% aus_grnds, "Yes", "No"))
+
+# try some plots
+ggplot(pc_av, aes(x=avg_econ, y=total_overs)) +
+  geom_point(aes(colour=Home), position=position_jitter(width=.5, height=.5), alpha=.5) +
+  scale_y_continuous(labels = scales::label_number()) +
+  scale_x_continuous(labels = scales::label_number(accuracy = 1)) +
+  geom_smooth(method="lm")
+  
+
+```
 
