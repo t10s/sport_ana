@@ -1,0 +1,47 @@
+---
+title: "expolore cricketdata package"
+output: html_document
+date: "2024-05-27"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Play around with the "cricketdata" package and explore it a bit.
+Package mainly handles download of cricket data from ESPN Crickinfo and Cricsheet.
+
+```{r, message=F}
+library(cricketdata)
+library(tidyverse)
+```
+
+```{r}
+# get the codes used in the cricsheet data
+cs_codes <- cricsheet_codes
+```
+
+```{r, fig.width=10, fig.height=7}
+# get some data from cricsheet
+ex <- fetch_cricsheet(type="bbb",
+                gender="male",
+                competition="ipl") |>
+  filter(batting_team == "Kolkata Knight Riders") |>
+  filter(season == "2023")
+
+# make a silly plot
+ggplot(ex, aes(x=ball, y=over, colour=factor(runs_off_bat))) +
+  geom_point(position=position_jitter(width = .3, height = .3), size = .9, alpha = 1) +
+  scale_x_continuous(breaks=c(1,2,3,4,5,6,7,8,9)) +
+  facet_wrap(~bowling_team, scales = "free") + # scales = free for x axis on each plot
+  theme_minimal() +
+  theme(axis.line = element_line(linewidth=.25),
+        axis.title = element_text(),
+        plot.title = element_text(hjust=.5)) +
+  xlab("Runs off the bat") + ylab("Over") +
+  ggtitle("Runs off the bat per ball every over for Kolkata Knightriders") +
+  guides(col = guide_legend(title = "Runs off the bat"))
+  
+```
+
+
